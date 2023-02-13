@@ -1,6 +1,9 @@
 import { z } from 'zod';
 export const BotConfigSchema = z.object({
     prefix: z.string().default('!').optional(),
+    version: z.string().default('10').optional(),
+    clientId: z.string(),
+    guildId: z.string(),
     token: z.string(),
 });
 

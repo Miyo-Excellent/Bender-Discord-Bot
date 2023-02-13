@@ -1,33 +1,23 @@
-import { CommandInteraction, Events, Interaction } from 'discord.js';
-import { EventBuilder, EventBuilderOptions } from '../builders/event.builder';
+import { Events, Interaction } from 'discord.js';
+import { EventBuilderOptions } from '@schemas/event.builderOptions.schema';
+import { EventBuilder } from '@builders/event.builder';
+import { BotEventsEnum } from '@enums/botEvents.enum';
 
-export interface BenderInteractionCreatedEventOptions extends EventBuilderOptions {}
+export interface PingEventOptions extends EventBuilderOptions {}
 
 export default class InteractionCreatedEvent extends EventBuilder {
+  public override name: BotEventsEnum | undefined = BotEventsEnum.INTERACTION_CREATED;
+
   override event: Events = Events.InteractionCreate;
 
-  constructor(options: BenderInteractionCreatedEventOptions) {
+  constructor(options: PingEventOptions) {
     super(options);
   }
 
-  async run(): Promise<void> {
+  async run(callback?: (interaction: Interaction) => Promise<void>): Promise<void> {
     this.client.on(this.event as string, async (interaction: Interaction) => {
-      if (interaction.isCommand() || interaction.isContextMenuCommand()) {
-        await this.handleSlashCommand(interaction);
-      }
+      console.log(`Interaction (${interaction.id}) is already`);
+      if (callback) await callback(interaction);
     });
-  }
-
-  private async handleSlashCommand(interaction: CommandInteraction): Promise<void> {
-    const slashCommand = this.commands.find((command) => command.name === interaction.commandName);
-
-    if (!slashCommand) {
-      await interaction.followUp({ content: 'An error has occurred' });
-      return;
-    }
-
-    await interaction.deferReply();
-
-    slashCommand.run(this.client, interaction);
   }
 }

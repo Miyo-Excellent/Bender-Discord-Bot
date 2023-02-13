@@ -2,7 +2,7 @@ import {Dirent, readdirSync} from 'fs';
 
 export async function readDefaultFilesOfFolderUtil<Class extends Object, ClassOptions>(
     path: string,
-    mapper: (Class: new (options: ClassOptions) => Class) => Promise<Class>,
+    mapper: (Class: new (options?: ClassOptions) => Class) => Promise<Class>,
 ): Promise<Class[]> {
     const defaultFilePaths: Dirent[] = readdirSync(path, {withFileTypes: true});
     const filenames = defaultFilePaths.filter((dirent) => dirent.isFile()).map((dirent) => dirent.name);
