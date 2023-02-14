@@ -2,15 +2,21 @@ import {ChatInputCommandInteraction, Client} from 'discord.js';
 import {CommandBuilder} from '@builders/command.builder';
 
 export default class HelloCommand extends CommandBuilder {
-    override description: string = 'Returns a greeting';
-    override name: string = 'hello';
+    constructor() {
+        super({
+            name: 'hello',
+            description: 'Returns a greeting',
+        });
+    }
 
-    override async run(_client: Client, interaction: ChatInputCommandInteraction): Promise<void> {
-        const content = "Hey, I'm Bender 🤖!";
-
+    run = async (_client: Client, interaction: ChatInputCommandInteraction): Promise<void> => {
+        const content = "Hey, I'm Bender 🤖🤖🤖🤖!";
+        const json = interaction.toJSON();
+        console.log(_client);
+        console.log(json);
         await interaction.reply({
             ephemeral: true,
             content,
         });
-    }
+    };
 }

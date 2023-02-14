@@ -1,5 +1,0 @@
-export enum BotEventsEnum {
-  INTERACTION_CREATED = 'INTERACTION_CREATED',
-  PING = 'PING',
-  READY = 'READY',
-}

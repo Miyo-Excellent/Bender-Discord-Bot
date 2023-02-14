@@ -30,17 +30,11 @@
       "@builders/*": [
         "infrastructure/builders/*"
       ],
-      "@bots/*": [
-        "infrastructure/bots/*"
-      ],
       "@commands/*": [
         "infrastructure/commands/*"
       ],
-      "@events/*": [
-        "infrastructure/events/*"
-      ],
       "@interfaces/*": [
-        "infrastructure/interfaces/*"
+        "domain/interfaces/*"
       ],
       "@enums/*": [
         "domain/enums/*"
@@ -50,6 +44,9 @@
       ],
       "@schemas/*": [
         "domain/schemas/*"
+      ],
+      "@t/*": [
+        "domain/types/*"
       ],
       "@utils/*": [
         "domain/utils/*"
