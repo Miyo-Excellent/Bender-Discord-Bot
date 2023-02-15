@@ -1,4 +1,10 @@
 {
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
   "compilerOptions": {
     "module": "CommonJS",
     "esModuleInterop": true,
@@ -16,11 +22,34 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "./src",
+    "baseUrl": "src",
     "paths": {
-      "*": [
-        "node_modules/*",
-        "src/types/*"
+      "@bots/*": [
+        "infrastructure/bots/*"
+      ],
+      "@builders/*": [
+        "infrastructure/builders/*"
+      ],
+      "@commands/*": [
+        "infrastructure/commands/*"
+      ],
+      "@interfaces/*": [
+        "domain/interfaces/*"
+      ],
+      "@enums/*": [
+        "domain/enums/*"
+      ],
+      "@interfaces/*": [
+        "domain/interfaces/*"
+      ],
+      "@schemas/*": [
+        "domain/schemas/*"
+      ],
+      "@t/*": [
+        "domain/types/*"
+      ],
+      "@utils/*": [
+        "domain/utils/*"
       ]
     }
   },
@@ -28,10 +57,13 @@
     "src/main.ts"
   ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "environment.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    ".idea",
+    ".vscode"
   ]
 }
