@@ -57,7 +57,8 @@
     "src/main.ts"
   ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "environment.d.ts"
   ],
   "exclude": [
     "node_modules",
