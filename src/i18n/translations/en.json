@@ -1,0 +1,37 @@
+{
+  "translation": {
+    "swoAllCurrencyData": "Show all currencies data",
+    "onReadyEvent": "===================Ready Event===================\n",
+    "loginAsEvent": "Logged in ",
+    "onInteractionCreateEvent": "=================Arguments=================\n",
+    "cacheEventCaching": "Caching response. Please wait a little while...",
+    "endLog": "-------------------------------------------------\n",
+    "errorLog": "======================Error======================\n",
+    "openAiContextChatKeywords": [
+      " Human:",
+      " AI:"
+    ],
+    "openAiContextChatWrapperStart": "The following is a conversation with the assistant AI (Artificial Intelligence) integrated into a Discord Bot, Said Bot takes all the traits of Bender Rodríguez and is aware that he is a Discord Bot and likes robot sluts, nightlife, bad guys habits, bad behaviors.\nBender Rodríguez is a fictional character from the Futurama animated series with superior intelligence and an advanced personality. Bender's personality is complex and multifaceted, which makes him an interesting character to analyze in terms of psychology and human behavior. Generally speaking, Bender is a robot with a strong personality, often self-centered and selfish, but also shows signs of friendship and loyalty towards his friends. He has emotional weaknesses and identity issues, and has dealt with depression and addiction. In the series, Bender serves as a source of humor and drama, making him a popular character among fans of the series.\nHuman: ",
+    "openAiContextChatWrapperEnd": ".\n\nAI:",
+    "application": "application",
+    "command": "command",
+    "prefix": "prefix",
+    "option": "option",
+    "choice": "choice",
+    "talk": "talk",
+    "ask": "ask",
+    "text": "text",
+    "currencies": "coins",
+    "currency": "coin",
+    "unknown": "unknown",
+    "value": "value",
+    "loadedCommand": "Loaded command...",
+    "unknownCommand": "Unknown command.",
+    "benderAskTitle": "Ask Bender Anything,",
+    "benderAskLabel": "What do you want to ask me human?",
+    "benderAskCurrenciesWithoutSelection": "Nothing selected",
+    "benderAskCurrenciesErrorInvalidCode": "Invalid currency code",
+    "benderTalkWithMe": "Talk with me",
+    "benderYouWannaTellMeSomething": "You wanna tell me something?"
+  }
+}

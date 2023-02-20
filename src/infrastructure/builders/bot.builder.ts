@@ -1,24 +1,32 @@
 import {
     ActionRowModalData,
+    AutocompleteInteraction,
     BaseInteraction,
     ChatInputCommandInteraction,
     Client,
     Events,
+    InteractionReplyOptions,
+    MessagePayload,
     ModalSubmitInteraction,
     RESTPostAPIChatInputApplicationCommandsJSONBody,
     RouteLike,
     Routes,
     TextInputModalData,
 } from 'discord.js';
-import {Bot} from '@schemas/bot.schema';
-import {Command} from '@schemas/command.schema';
-import {BotConfig} from '@schemas/botConfig.schema';
-import {BotInterface} from '@interfaces/bot.interface';
-import {readDefaultFilesOfFolderUtil} from '@utils/readDefaultFilesOfFolder.util';
-import {CommandBuilder} from '@builders/command.builder';
-import {CommandBuilderOptions} from '@schemas/command.builderOptions.schema';
+import { Bot } from '@schemas/bot.schema';
+import { Command } from '@schemas/command.schema';
+import { BotConfig } from '@schemas/botConfig.schema';
+import { BotInterface } from '@interfaces/bot.interface';
+import { readDefaultFilesOfFolderUtil } from '@utils/readDefaultFilesOfFolder.util';
+import { CommandBuilder } from '@builders/command.builder';
+import { TranslateRepository } from '@repositories/translate.repository';
+import { getPackage } from '@di/injector';
 
 export class BotBuilder implements Bot, BotInterface {
+    public static openAIChatContextWrapperStart: string = '';
+    public static openAIChatContextWrapperEnd: string = '';
+    public static openAIChatContextWrapperKeywords: string[] = [];
+    public translateRepository: TranslateRepository = getPackage<TranslateRepository>('translateRepository');
     public commandsPath = '';
     public commands: Command[] = [];
 
@@ -29,39 +37,48 @@ export class BotBuilder implements Bot, BotInterface {
         return this.client?.user?.username || '';
     }
 
-    onProcessModalData = async (data: TextInputModalData, interaction: ModalSubmitInteraction): Promise<void> => {
-        await interaction.followUp({
-            ephemeral: true,
-            content: `${data.customId} -> ${data.value}`,
-        });
+    onProcessModalData = async (data: TextInputModalData, interaction: ModalSubmitInteraction, _ephemeral: boolean = false): Promise<void> => {
+        await this.reply(interaction, data.value);
+
+        for (const command of this.commands) {
+            const modalCommandName: string = `${command.name}_MODAL`.toUpperCase();
+
+            if (modalCommandName === interaction.customId) {
+                await command.run(this.client, interaction);
+            }
+        }
+    };
+
+    reply = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+        if (interaction.isRepliable()) {
+            if (interaction.replied) await interaction.followUp(options);
+            else await interaction.reply(options);
+        }
     };
 
     onModalSubmit = async (interaction: ModalSubmitInteraction): Promise<void> => {
         const messages: any[] = [`===============Modal Response (${interaction.customId})===============`];
 
-        await interaction.reply({content: 'Your submission was received successfully!'});
+        await this.reply(interaction, { content: 'Your submission was received successfully!', ephemeral: true });
 
         for (const action of interaction.components as ActionRowModalData[]) {
             for (const component of action.components) {
-                const {value = '', customId = '', type = ''} = component as any;
+                const { value = '', customId = '', type = '' } = component as any;
 
                 messages.push(`\n  º ${customId} -> ${value}`);
 
-                await this.onProcessModalData({value, customId, type}, interaction);
+                await this.onProcessModalData({ value, customId, type }, interaction);
             }
         }
 
         console.log(...messages);
     };
 
+    onAutocompleteInteraction = async (_interaction: AutocompleteInteraction): Promise<void> => {
+    };
+
     onChatInputCommandInteraction = async (interaction: ChatInputCommandInteraction): Promise<void> => {
-        console.log('=========New Interaction Created=========\n', interaction.commandName);
-
-        if (interaction.inCachedGuild()) {
-            await interaction.reply({ephemeral: true, content: 'Saving Server In Cache'});
-
-            await interaction.guild?.fetch();
-        }
+        console.log(`=========Command Interaction ${interaction.commandName}=========\n`);
 
         const command: Command | undefined = this.commands.find((command) => command.name === interaction.commandName);
 
@@ -72,7 +89,7 @@ export class BotBuilder implements Bot, BotInterface {
             this.client.application?.commands.set(this.commands.map((command: Command) => command.data.toJSON()));
             console.warn('===================Command Alert===================\n', message);
 
-            await interaction.reply({ephemeral: true, content: message});
+            await this.reply(interaction, message);
             return;
         }
     };
@@ -86,21 +103,30 @@ export class BotBuilder implements Bot, BotInterface {
     onInteractionCreate = async (interaction: BaseInteraction, ...args: any[]): Promise<void> => {
         if (!!args.length) console.log('=================Arguments=================\n', ...args);
 
-        if (interaction.isChatInputCommand()) await this.onChatInputCommandInteraction(interaction);
+        if (interaction.isAutocomplete()) await this.onAutocompleteInteraction(interaction);
+        else if (interaction.isChatInputCommand()) await this.onChatInputCommandInteraction(interaction);
         else if (interaction.isModalSubmit()) await this.onModalSubmit(interaction);
+        else if (interaction.isRepliable()) await this.reply(interaction, 'Unknown command.');
+        return;
     };
 
     start = async (): Promise<void> => {
-        this.commands = await readDefaultFilesOfFolderUtil<CommandBuilder, CommandBuilderOptions>(
-            this.commandsPath,
-            async (CommandClass) => new CommandClass(),
-        );
+        try {
+            await this.translateRepository.init();
 
-        this.client.on(Events.ClientReady, this.onClientReady);
-        this.client.on(Events.InteractionCreate, this.onInteractionCreate);
+            const commandFiles = await readDefaultFilesOfFolderUtil<CommandBuilder>({ path: this.commandsPath });
 
-        await this.client.login(this.config.token);
-        await this.setCommands();
+            this.commands = commandFiles.map((command) => command.file);
+
+            this.client.on(Events.ClientReady, this.onClientReady);
+            this.client.on(Events.InteractionCreate, this.onInteractionCreate);
+
+            await this.client.login(this.config.token);
+            await this.setCommands();
+        } catch (error) {
+            console.error(error);
+            await this.start();
+        }
     };
 
     getCommandByName = (commandName: string): Command | undefined => this.commands.find((command) => command.name === commandName);
@@ -112,10 +138,10 @@ export class BotBuilder implements Bot, BotInterface {
             const urlPath: RouteLike = Routes.applicationGuildCommands(this.config.clientId, this.config.guildId);
 
             const parsedCommands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = this.commands.map<RESTPostAPIChatInputApplicationCommandsJSONBody>(
-                (command: Command) => command.data.toJSON(),
+              (command: Command) => command.data.toJSON(),
             );
 
-            const data: unknown = await this.client.rest.put(urlPath, {body: parsedCommands});
+            const data: unknown = await this.client.rest.put(urlPath, { body: parsedCommands });
 
             const messages: any[] = [
                 `===============Commands Loaded (${Array.isArray(data) ? data.length : 0})===============\n`,

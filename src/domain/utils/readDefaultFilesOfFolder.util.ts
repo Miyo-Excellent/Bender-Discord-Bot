@@ -1,20 +1,39 @@
-import {Dirent, readdirSync} from 'fs';
+import { Dirent, ObjectEncodingOptions, readdirSync } from 'fs';
+import { ReadDefaultFilesOfFolderMapperFileInterface } from '@interfaces/readDefaultFilesOfFolderMapperFile.interface';
 
-export async function readDefaultFilesOfFolderUtil<Class extends Object, ClassOptions>(
-    path: string,
-    mapper: (Class: new (options?: ClassOptions) => Class) => Promise<Class>,
-): Promise<Class[]> {
-    const defaultFilePaths: Dirent[] = readdirSync(path, {withFileTypes: true});
-    const filenames = defaultFilePaths.filter((dirent) => dirent.isFile()).map((dirent) => dirent.name);
-    const list: Class[] = [];
+export type MapperClass<Class, Props> = new (options?: Props) => Class;
+export type Mapper<Class, Props> = (name: string, Class: MapperClass<Class, Props>, props?: Props) => Promise<Class>;
 
-    for (const defaultFilePath of filenames) {
-        const {default: SomeDefaultExportedClass} = await import(`${path}/${defaultFilePath}`);
+export interface ReadDefaultFilesOfFolderUtilOptions<Class, Props> {
+  path: string;
+  mapper?: Mapper<Class, Props>;
+  defaultMapperOption?: Props;
+  options?: ObjectEncodingOptions & {
+    withFileTypes: true;
+  };
+}
 
-        const item = await mapper(SomeDefaultExportedClass);
+export async function readDefaultFilesOfFolderUtil<Class extends Object = any, Props extends unknown = unknown>({
+  path,
+  mapper,
+  defaultMapperOption,
+  options = { withFileTypes: true },
+}: ReadDefaultFilesOfFolderUtilOptions<Class, Props>): Promise<ReadDefaultFilesOfFolderMapperFileInterface<Class>[]> {
+  const defaultFilePaths: Dirent[] = readdirSync(path, options);
+  const filenames: string[] = defaultFilePaths.filter((dirent) => dirent.isFile()).map((dirent) => dirent.name);
+  const list: ReadDefaultFilesOfFolderMapperFileInterface<Class>[] = [];
+  const defaultMapper = async (_name: string, Class: new (options?: Props) => Class, props?: Props): Promise<Class> => new Class(props);
 
-        list.push(item);
-    }
+  for (const defaultFilePath of filenames) {
+    const { default: SomeDefaultExportedClass }: { default: new (options?: Props) => Class } = await import(`${path}/${defaultFilePath}`);
 
-    return list;
+    const instancedClass = await (mapper ? mapper : defaultMapper)(defaultFilePath, SomeDefaultExportedClass, defaultMapperOption);
+
+    list.push({
+      name: defaultFilePath,
+      file: instancedClass,
+    });
+  }
+
+  return list;
 }

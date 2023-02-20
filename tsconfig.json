@@ -6,6 +6,8 @@
     ]
   },
   "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "module": "CommonJS",
     "esModuleInterop": true,
     "target": "ESNext",
@@ -22,6 +24,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    // "types": ["reflect-metadata"],
     "baseUrl": "src",
     "paths": {
       "@bots/*": [
@@ -32,6 +35,12 @@
       ],
       "@commands/*": [
         "infrastructure/commands/*"
+      ],
+      "@services/*": [
+        "infrastructure/services/*"
+      ],
+      "@repositories/*": [
+        "infrastructure/repositories/*"
       ],
       "@interfaces/*": [
         "domain/interfaces/*"
@@ -50,6 +59,12 @@
       ],
       "@utils/*": [
         "domain/utils/*"
+      ],
+      "@i18n/*": [
+        "i18n/*"
+      ],
+      "@di/*": [
+        "di/*"
       ]
     }
   },

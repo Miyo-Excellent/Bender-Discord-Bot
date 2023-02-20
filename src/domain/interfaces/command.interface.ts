@@ -1,13 +1,19 @@
 import {
+  BaseInteraction,
   ChatInputApplicationCommandData,
   ChatInputCommandInteraction,
-  Client,
+  Client, InteractionReplyOptions, MessagePayload,
   RESTPostAPIChatInputApplicationCommandsJSONBody
-} from 'discord.js';
-import {CommandBuilderDataType} from '@t/commandBuilderData.type';
+} from "discord.js";
+import { CommandBuilderDataType } from '@t/commandBuilderData.type';
 
 export interface CommandInterface extends ChatInputApplicationCommandData {
   json: RESTPostAPIChatInputApplicationCommandsJSONBody;
   data: CommandBuilderDataType;
-  run: (client: Client, interaction: ChatInputCommandInteraction) => void;
+
+  run(client: Client, interaction: ChatInputCommandInteraction): Promise<void>;
+
+  reply(interaction: BaseInteraction, output:  string | MessagePayload | InteractionReplyOptions): Promise<void>;
+
+  isInteractionSavedOnCache(interaction: BaseInteraction): Promise<boolean>;
 }

@@ -1,32 +1,38 @@
 import {
-    BaseInteraction,
-    ChatInputCommandInteraction,
-    Client,
-    ModalSubmitInteraction,
-    TextInputModalData
+  AutocompleteInteraction,
+  BaseInteraction,
+  ChatInputCommandInteraction,
+  Client,
+  InteractionReplyOptions,
+  MessagePayload,
+  ModalSubmitInteraction,
+  TextInputModalData,
 } from 'discord.js';
-import {CommandInterface} from '@interfaces/command.interface';
-import {Command} from '@schemas/command.schema';
+import { Command } from '@schemas/command.schema';
 
 export interface BotInterface {
-    readonly client: Client;
-    commandsPath: string;
-    commands: CommandInterface[];
-    username: string;
+  readonly client: Client;
+  commandsPath: string;
+  commands: Command[];
+  username: string;
 
-    getCommandByName(commandName: string): Command | undefined;
+  getCommandByName(commandName: string): Command | undefined;
 
-    start(): Promise<void>;
+  start(): Promise<void>;
 
-    onChatInputCommandInteraction(interaction: ChatInputCommandInteraction): Promise<void>;
+  onChatInputCommandInteraction(interaction: ChatInputCommandInteraction): Promise<void>;
 
-    onClientReady(client: Client<true>): Promise<void>;
+  onAutocompleteInteraction(interaction: AutocompleteInteraction): Promise<void>;
 
-    onInteractionCreate(interaction: BaseInteraction, ..._args: any[]): Promise<void>;
+  onClientReady(client: Client<true>): Promise<void>;
 
-    onModalSubmit(interaction: ModalSubmitInteraction): Promise<void>;
+  onInteractionCreate(interaction: BaseInteraction, ..._args: any[]): Promise<void>;
 
-    setCommands(commands: Command[]): Promise<void>;
+  onModalSubmit(interaction: ModalSubmitInteraction): Promise<void>;
 
-    onProcessModalData(data: TextInputModalData, interaction: ModalSubmitInteraction): Promise<void>;
+  setCommands(commands: Command[]): Promise<void>;
+
+  onProcessModalData(data: TextInputModalData, interaction: ModalSubmitInteraction): Promise<void>;
+
+  reply(interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
 }
