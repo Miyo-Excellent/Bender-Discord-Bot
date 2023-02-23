@@ -7,7 +7,7 @@ export class TranslateService implements TranslateServiceInterface {
   private repository: TranslateRepository = getPackage<TranslateRepository>('translateRepository');
   init = this.repository.init;
 
-  parse = (input: string, options: TOptionsBase = {}) => {
+  parse = (input: string, options: TOptionsBase = {}): any | undefined => {
     const value: string = i18next.t(input, options);
     return value;
   };

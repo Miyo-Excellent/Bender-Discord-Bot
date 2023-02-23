@@ -2,8 +2,10 @@ import {
   BaseInteraction,
   ChatInputCommandInteraction,
   Client,
+  DMChannel,
   InteractionReplyOptions,
   MessagePayload,
+  ModalSubmitInteraction,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   SlashCommandBuilder,
 } from 'discord.js';
@@ -30,23 +32,45 @@ export class CommandBuilder implements Command, CommandInterface {
 
   reply = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
     try {
-      if (interaction instanceof ChatInputCommandInteraction) {
+      if (interaction instanceof ModalSubmitInteraction) {
         if (interaction.isRepliable()) {
           if (interaction.replied) await interaction.followUp(options);
           else await interaction.reply(options);
         }
-      } else {
-        console.warn('No repliable command', interaction);
-      }
+      } else if (interaction instanceof ChatInputCommandInteraction) {
+        const channel = await interaction.client.channels.fetch(interaction.channelId);
+        const isDM: boolean = channel instanceof DMChannel;
+
+        if (interaction.isRepliable()) {
+          if (isDM) await this.sendDM(interaction, options);
+          else if (interaction.replied) await interaction.followUp(options);
+          else await interaction.reply(options);
+        } else console.error('Unknown command', interaction);
+      } else console.warn('No repliable command', interaction);
     } catch (error: any) {
-      if (error.message && typeof error.message === 'string') {
-        if (error.message === 'Unknown interaction') {
-          console.warn('Unknown interaction', interaction);
-        }
-      } else {
-        console.error(error);
-      }
+      await this.onError(error, interaction, options);
     }
+  };
+
+  sendDM = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+    if (typeof options === 'string') await interaction.user.send({ content: options });
+    else if (options instanceof MessagePayload) await interaction.user.send(options);
+    else await interaction.user.send({ content: options.content });
+  };
+
+  onError = async (error: any, interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+    if (error.code === 'InteractionNotReplied') console.warn(error?.message ?? '', interaction);
+    else await this.onUnknownInteraction(interaction, options);
+  };
+
+  onUnknownInteraction = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+    if (!(interaction instanceof ChatInputCommandInteraction)) {
+      console.warn('Unknown interaction', interaction);
+      return;
+    }
+    if (typeof options === 'string') await interaction.user.send(options);
+    else if (options instanceof MessagePayload) await interaction.user.send(options);
+    else await interaction.user.send({ content: options.content });
   };
 
   isInteractionSavedOnCache = async (interaction: BaseInteraction): Promise<boolean> => {

@@ -35,4 +35,12 @@ export interface BotInterface {
   onProcessModalData(data: TextInputModalData, interaction: ModalSubmitInteraction): Promise<void>;
 
   reply(interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+
+  reply(interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+
+  sendDM(interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+
+  onError(error: any, interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+
+  onUnknownInteraction(interaction: BaseInteraction, output: string | MessagePayload | InteractionReplyOptions): Promise<void>;
 }

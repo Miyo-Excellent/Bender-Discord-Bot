@@ -4,6 +4,7 @@ import {
     BaseInteraction,
     ChatInputCommandInteraction,
     Client,
+    DMChannel,
     Events,
     InteractionReplyOptions,
     MessagePayload,
@@ -19,14 +20,14 @@ import { BotConfig } from '@schemas/botConfig.schema';
 import { BotInterface } from '@interfaces/bot.interface';
 import { readDefaultFilesOfFolderUtil } from '@utils/readDefaultFilesOfFolder.util';
 import { CommandBuilder } from '@builders/command.builder';
-import { TranslateRepository } from '@repositories/translate.repository';
 import { getPackage } from '@di/injector';
+import { TranslateService } from '@services/translate.service';
 
 export class BotBuilder implements Bot, BotInterface {
     public static openAIChatContextWrapperStart: string = '';
     public static openAIChatContextWrapperEnd: string = '';
     public static openAIChatContextWrapperKeywords: string[] = [];
-    public translateRepository: TranslateRepository = getPackage<TranslateRepository>('translateRepository');
+    public translateService: TranslateService = getPackage<TranslateService>('translateService');
     public commandsPath = '';
     public commands: Command[] = [];
 
@@ -50,16 +51,49 @@ export class BotBuilder implements Bot, BotInterface {
     };
 
     reply = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
-        if (interaction.isRepliable()) {
-            if (interaction.replied) await interaction.followUp(options);
-            else await interaction.reply(options);
+        try {
+            if (interaction instanceof ModalSubmitInteraction) {
+                if (interaction.isRepliable()) {
+                    if (interaction.replied) await interaction.followUp(options);
+                    else await interaction.reply(options);
+                }
+            } else if (interaction instanceof ChatInputCommandInteraction) {
+                const channel = await interaction.client.channels.fetch(interaction.channelId);
+                const isDM: boolean = channel instanceof DMChannel;
+
+                if (interaction.isRepliable()) {
+                    if (isDM) await this.sendDM(interaction, options);
+                    else if (interaction.replied) await interaction.followUp(options);
+                    else await interaction.reply(options);
+                } else console.error('Unknown command', interaction);
+            } else console.warn('No repliable command', interaction);
+        } catch (error: any) {
+            await this.onError(error, interaction, options);
         }
     };
+    sendDM = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+        if (typeof options === 'string') await interaction.user.send({ content: options });
+        else if (options instanceof MessagePayload) await interaction.user.send(options);
+        else await interaction.user.send({ content: options.content });
+    };
 
+    onError = async (error: any, interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+        if (error.code === 'InteractionNotReplied') console.warn(error?.message ?? '', interaction);
+        else await this.onUnknownInteraction(interaction, options);
+    };
+    onUnknownInteraction = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
+        if (!(interaction instanceof ChatInputCommandInteraction)) {
+            console.warn('Unknown interaction', interaction);
+            return;
+        }
+        if (typeof options === 'string') await interaction.user.send(options);
+        else if (options instanceof MessagePayload) await interaction.user.send(options);
+        else await interaction.user.send({ content: options.content });
+    };
     onModalSubmit = async (interaction: ModalSubmitInteraction): Promise<void> => {
         const messages: any[] = [`===============Modal Response (${interaction.customId})===============`];
 
-        await this.reply(interaction, { content: 'Your submission was received successfully!', ephemeral: true });
+        // await this.reply(interaction, { content: 'Your submission was received successfully!', ephemeral: true });
 
         for (const action of interaction.components as ActionRowModalData[]) {
             for (const component of action.components) {
@@ -112,7 +146,7 @@ export class BotBuilder implements Bot, BotInterface {
 
     start = async (): Promise<void> => {
         try {
-            await this.translateRepository.init();
+            await this.translateService.init();
 
             const commandFiles = await readDefaultFilesOfFolderUtil<CommandBuilder>({ path: this.commandsPath });
 

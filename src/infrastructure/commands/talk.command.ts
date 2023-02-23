@@ -11,7 +11,6 @@ import {
 import { CommandBuilder } from '@builders/command.builder';
 import { OpenAiService } from '@services/openAi.service';
 import { container } from '@di/injector';
-import { BenderBot } from '@bots/bender.bot';
 import { TranslateService } from '@services/translate.service';
 
 export default class TalkCommand extends CommandBuilder {
@@ -27,10 +26,32 @@ export default class TalkCommand extends CommandBuilder {
     }
 
     run = async (_client: Client, interaction: BaseInteraction): Promise<void> => {
+        const language: string = interaction.locale.split('-')[0];
+
         const benderYouWannaTellMeSomething: string = this.translateService.parse('benderYouWannaTellMeSomething');
         const benderTalkWithMe: string = this.translateService.parse('benderTalkWithMe');
         const openAiContextChatWrapperStart: string = this.translateService.parse('openAiContextChatWrapperStart');
         const openAiContextChatWrapperEnd: string = this.translateService.parse('openAiContextChatWrapperEnd');
+        const openAiContextChatKeywords: string[] = this.translateService.parse('openAiContextChatKeywords');
+        const cacheEventCaching: string = this.translateService.parse('cacheEventCaching', { lng: language });
+        const benderIsThinking: string = this.translateService.parse('benderIsThinking', { lng: language });
+        const benderIsHangover: string = this.translateService.parse('benderIsHangover', { lng: language });
+
+        const savedInCache: boolean = await this.isInteractionSavedOnCache(interaction);
+
+        await this.reply(interaction, {
+            content: benderIsThinking,
+            ephemeral: true,
+            fetchReply: true,
+        });
+
+        if (!savedInCache) {
+            await this.reply(interaction, {
+                content: cacheEventCaching,
+                ephemeral: true,
+                fetchReply: true,
+            });
+        }
 
         if (interaction instanceof ChatInputCommandInteraction) {
             const talkInput: TextInputBuilder = new TextInputBuilder()
@@ -51,12 +72,20 @@ export default class TalkCommand extends CommandBuilder {
             const value: string = `${openAiContextChatWrapperStart}${inputOne.value}${openAiContextChatWrapperEnd}`;
 
             if (inputOne.value) {
-                const output: string = await this.openAiService.askQuestion({
-                    value,
-                    keywords: BenderBot.openAIChatContextWrapperKeywords,
-                });
+                let reply: string = `<@${interaction.user.id}>: ${inputOne.value}\n<@${interaction.client.user.id}>: ${benderIsHangover}`;
 
-                await this.reply(interaction, `<@${interaction.user.id}>: ${inputOne.value}\n<@${interaction.client.user.id}>: ${output}`);
+                try {
+                    const output: string = await this.openAiService.askQuestion({
+                        value,
+                        keywords: openAiContextChatKeywords,
+                    });
+
+                    reply = `<@${interaction.user.id}>: ${inputOne.value}\n<@${interaction.client.user.id}>: ${output}`;
+                } catch (error) {
+                    console.error('Unknown Error: ', error);
+                }
+
+                await this.reply(interaction, { content: reply, fetchReply: true });
             }
         }
     };

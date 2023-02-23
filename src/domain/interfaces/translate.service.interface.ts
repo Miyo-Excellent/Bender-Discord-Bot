@@ -1,5 +1,5 @@
 export interface TranslateServiceInterface {
-  parse: (input: string) => string | undefined;
+  parse: (input: string) => any | undefined;
 
   init(): Promise<void>;
 }

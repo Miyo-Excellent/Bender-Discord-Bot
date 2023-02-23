@@ -31,6 +31,8 @@ export default class AskCommand extends CommandBuilder {
     const cacheEventCaching: string = this.translateService.parse('cacheEventCaching', { lng: language });
     const openAiContextChatWrapperStart: string = this.translateService.parse('openAiContextChatWrapperStart', { lng: language });
     const openAiContextChatWrapperEnd: string = this.translateService.parse('openAiContextChatWrapperEnd', { lng: language });
+    const benderIsThinking: string = this.translateService.parse('benderIsThinking', { lng: language });
+    const benderIsHangover: string = this.translateService.parse('benderIsHangover', { lng: language });
 
     if (interaction instanceof ChatInputCommandInteraction) {
       const [message] = interaction.options.data;
@@ -40,19 +42,34 @@ export default class AskCommand extends CommandBuilder {
 
       const savedInCache: boolean = await this.isInteractionSavedOnCache(interaction);
 
-      if (savedInCache)
+      await this.reply(interaction, {
+        content: benderIsThinking,
+        ephemeral: true,
+        fetchReply: true,
+      });
+
+      if (!savedInCache) {
         await this.reply(interaction, {
           content: cacheEventCaching,
           ephemeral: true,
+          fetchReply: true,
         });
+      }
 
-      const output: string = await this.openAiService.askQuestion({
-        value,
-        keywords: BenderBot.openAIChatContextWrapperKeywords,
-      });
+      let output: string = benderIsHangover;
+
+      try {
+        output = await this.openAiService.askQuestion({
+          value,
+          keywords: BenderBot.openAIChatContextWrapperKeywords,
+        });
+      } catch (error) {
+        console.error('Unknown Error: ', error);
+      }
 
       await this.reply(interaction, {
         content: `<@${interaction.user.id}>: ${messageValue}\n<@${interaction.client.user.id}>: ${output}`,
+        fetchReply: true,
       });
     }
 
