@@ -2,15 +2,17 @@
   "name": "bender-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/main.js",
+  "engines": {
+    "node": "14"
+  },
   "scripts": {
-    "start": "npm run build && npm run start:prod",
-    "start:dev": "ts-node src/main.ts",
-    "start:prod": "node ./dist/main.js",
-    "watch:dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
+    "start:prod": "yarn run build && yarn run start:prod",
+    "start": "ts-node src/main.ts",
+    "prod": "node ./dist/main.js",
+    "dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
     "eslint:fix": "eslint --fix",
-    "buid": "tsc"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
