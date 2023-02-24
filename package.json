@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "ts-node src/main.ts",
-    "dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
-    "eslint:fix": "eslint --fix"
+    "start": "npm run build && npm run start:prod",
+    "start:dev": "ts-node src/main.ts",
+    "start:prod": "node ./dist/main.js",
+    "watch:dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
+    "eslint:fix": "eslint --fix",
+    "buid": "tsc"
   },
   "keywords": [],
   "author": "",
