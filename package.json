@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/main.js",
-  "engines": {
-    "node": "14"
-  },
   "scripts": {
-    "start:prod": "yarn run build && yarn run start:prod",
+    "start:prod": "pnpm run build && pnpm run prod",
     "start": "ts-node src/main.ts",
     "prod": "node ./dist/main.js",
     "dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
