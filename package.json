@@ -7,7 +7,7 @@
     "start:prod": "pnpm run build && pnpm run prod",
     "start": "ts-node src/main.ts",
     "prod": "node ./dist/main.js",
-    "dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node ./src/main.ts",
+    "dev": "nodemon --watch src/**/*.ts --watch src/**/*.json --exec ts-node src/main.ts",
     "eslint:fix": "eslint --fix",
     "build": "tsc"
   },
