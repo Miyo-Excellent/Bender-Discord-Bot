@@ -21,7 +21,7 @@ export class OpenAiRepository implements OpenAiRepositoryInterface{
   autocompletionText = async (prompt: string, stop: string[] = []): Promise<CreateCompletionResponseChoicesInner[]> => {
     const options: CreateCompletionRequest = {
       prompt,
-      model: 'text-davinci-003',
+      model: 'gpt-3.5-turbo',
       temperature: 0.9,
       max_tokens: 1000,
       top_p: 1,
