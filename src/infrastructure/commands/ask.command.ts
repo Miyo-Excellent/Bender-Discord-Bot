@@ -1,4 +1,20 @@
-import { BaseInteraction, ChatInputCommandInteraction, Client } from 'discord.js';
+import {
+  BaseInteraction,
+  CategoryChannel,
+  Channel,
+  ChatInputCommandInteraction,
+  Client,
+  DMChannel,
+  ForumChannel,
+  NewsChannel,
+  PartialGroupDMChannel,
+  PrivateThreadChannel,
+  PublicThreadChannel,
+  StageChannel,
+  TextChannel,
+  ThreadChannel,
+  VoiceChannel,
+} from 'discord.js';
 import { CommandBuilder } from '@builders/command.builder';
 import { container } from '@di/injector';
 import { TranslateService } from '@services/translate.service';
@@ -41,18 +57,87 @@ export default class AskCommand extends CommandBuilder {
 
       const savedInCache: boolean = await this.isInteractionSavedOnCache(interaction);
 
+      const channel: Channel | null = await interaction.client.channels.fetch(interaction.channelId);
+
+      if (channel) {
+        const channelClient:
+          | CategoryChannel
+          | DMChannel
+          | PartialGroupDMChannel
+          | NewsChannel
+          | StageChannel
+          | TextChannel
+          | PrivateThreadChannel
+          | PublicThreadChannel
+          | VoiceChannel
+          | ForumChannel = await channel.fetch();
+
+        if (channelClient instanceof TextChannel) {
+          await channelClient.send({
+            content: benderIsThinking,
+            options: {
+              ephemeral: true,
+              fetchReply: true,
+            },
+          });
+
+          if (!savedInCache) {
+            await channelClient.send({
+              content: cacheEventCaching,
+              options: {
+                ephemeral: true,
+                fetchReply: true,
+              },
+            });
+          }
+
+          let output: string = benderIsHangover;
+
+          try {
+            output = await this.geminiAiService.askQuestion({ value });
+          } catch (error) {
+            console.error('Unknown Error: ', error);
+          }
+
+          await channelClient.send({
+            content: `<@${interaction.user.id}>: ${messageValue}\n<@${interaction.client.user.id}>: ${output}`,
+            options: {
+              fetchReply: true,
+              ephemeral: false,
+            },
+          });
+        } else if (channelClient instanceof CategoryChannel) {
+        } else if (channelClient instanceof DMChannel) {
+        } else if (channelClient instanceof PartialGroupDMChannel) {
+        } else if (channelClient instanceof NewsChannel) {
+        } else if (channelClient instanceof StageChannel) {
+        } else if (channelClient instanceof ThreadChannel<false>) {
+          /// PrivateThreadChannel
+        } else if (channelClient instanceof ThreadChannel<true>) {
+          /// PublicThreadChannel
+        } else if (channelClient instanceof VoiceChannel) {
+        } else if (channelClient instanceof ForumChannel) {
+        }
+
+        return;
+      }
+
+      debugger;
       await this.reply(interaction, {
         content: benderIsThinking,
         ephemeral: true,
         fetchReply: true,
       });
 
+      debugger;
       if (!savedInCache) {
+        debugger;
         await this.reply(interaction, {
           content: cacheEventCaching,
           ephemeral: true,
           fetchReply: true,
         });
+        debugger;
       }
 
       let output: string = benderIsHangover;
@@ -63,10 +148,12 @@ export default class AskCommand extends CommandBuilder {
         console.error('Unknown Error: ', error);
       }
 
+      debugger;
       await this.reply(interaction, {
         content: `<@${interaction.user.id}>: ${messageValue}\n<@${interaction.client.user.id}>: ${output}`,
         fetchReply: true,
       });
+      debugger;
     }
 
     return;

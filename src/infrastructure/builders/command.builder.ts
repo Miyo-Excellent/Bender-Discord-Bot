@@ -1,5 +1,6 @@
 import {
   BaseInteraction,
+  Channel,
   ChatInputCommandInteraction,
   Client,
   DMChannel,
@@ -38,12 +39,16 @@ export class CommandBuilder implements Command, CommandInterface {
           else await interaction.reply(options);
         }
       } else if (interaction instanceof ChatInputCommandInteraction) {
-        const channel = await interaction.client.channels.fetch(interaction.channelId);
+        const channel: Channel | null = await interaction.client.channels.fetch(interaction.channelId);
         const isDM: boolean = channel instanceof DMChannel;
+        const isRepliable: boolean = interaction.isRepliable();
+        const isReplied: boolean = interaction.replied;
 
-        if (interaction.isRepliable()) {
+        if (isRepliable) {
+          // debugger;
+          // await interaction.webhook.send(options);
           if (isDM) await this.sendDM(interaction, options);
-          else if (interaction.replied) await interaction.followUp(options);
+          else if (isReplied) await interaction.followUp(options);
           else await interaction.reply(options);
         } else console.error('Unknown command', interaction);
       } else console.warn('No repliable command', interaction);
