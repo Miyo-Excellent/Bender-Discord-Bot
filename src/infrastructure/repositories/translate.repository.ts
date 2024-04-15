@@ -6,8 +6,7 @@ import { TranslateResourceInterface } from '@interfaces/translateResource.interf
 import { ReadDefaultFilesOfFolderMapperFileInterface } from '@interfaces/readDefaultFilesOfFolderMapperFile.interface';
 
 export class TranslateRepository implements TranslateRepositoryInterface {
-  constructor(private options: TranslateOptionRepositoryInterface) {
-  }
+  constructor(private options: TranslateOptionRepositoryInterface) {}
 
   public init = async (): Promise<void> => {
     const resources: ReadDefaultFilesOfFolderMapperFileInterface<TranslateResourceInterface>[] = await this.resources();

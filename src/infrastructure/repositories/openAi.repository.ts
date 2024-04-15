@@ -1,11 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import {
-  Configuration,
-  CreateCompletionRequest,
-  CreateCompletionResponse,
-  CreateCompletionResponseChoicesInner,
-  OpenAIApi,
-} from 'openai';
+import { Configuration, CreateCompletionRequest, CreateCompletionResponse, CreateCompletionResponseChoicesInner, OpenAIApi } from 'openai';
 import { OpenAiRepositoryInterface } from '@interfaces/openAi.repository.interface';
 
 export class OpenAiRepository implements OpenAiRepositoryInterface {

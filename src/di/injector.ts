@@ -5,8 +5,8 @@ import { OpenAiService } from '@services/openAi.service';
 import { ExchangeRateService } from '@services/exchangeRate.service';
 import { ExchangeRateRepository } from '@repositories/exchangeRate.repository';
 import { OpenAiRepository } from '@repositories/openAi.repository';
-import { TranslateRepository } from "@repositories/translate.repository";
-import { TranslateService } from "@services/translate.service";
+import { TranslateRepository } from '@repositories/translate.repository';
+import { TranslateService } from '@services/translate.service';
 import { GeminiAiRepository } from '@repositories/geminiAi.repository';
 
 export const container: AwilixContainer = createContainer();
@@ -39,7 +39,7 @@ container.register({
     const environment: Environment = getPackage<Environment>('environment');
     return new TranslateRepository({
       language: environment.defaultLanguage,
-      dirPath: join(__dirname, '..', 'i18n', 'translations')
+      dirPath: join(__dirname, '..', 'i18n', 'translations'),
     });
   }).singleton(),
   /// SERVICES

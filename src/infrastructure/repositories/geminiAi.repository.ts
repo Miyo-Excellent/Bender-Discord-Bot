@@ -6,9 +6,7 @@ export class GeminiAiRepository implements GeminiAiRepositoryInterface {
   readonly model: GenerativeModel;
 
   constructor(protected apiKey: string) {
-    this.generator = new GoogleGenerativeAI(
-      apiKey,
-    );
+    this.generator = new GoogleGenerativeAI(apiKey);
 
     this.model = this.generator.getGenerativeModel({
       model: 'gemini-1.0-pro-latest',

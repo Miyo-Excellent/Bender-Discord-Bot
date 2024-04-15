@@ -1,8 +1,8 @@
-import {object, string, z} from 'zod';
+import { object, string, z } from 'zod';
 
 export const CommandBuilderOptionsSchema = object({
-    description: string(),
-    name: string(),
+  description: string(),
+  name: string(),
 });
 
-export type CommandBuilderOptions = z.infer<typeof CommandBuilderOptionsSchema>
+export type CommandBuilderOptions = z.infer<typeof CommandBuilderOptionsSchema>;

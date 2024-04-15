@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import { CurrenciesSymbolsInterface } from "@interfaces/currenciesSymbols.interface";
+import { CurrenciesSymbolsInterface } from '@interfaces/currenciesSymbols.interface';
 import { CurrencyBuilder } from '@builders/currency.builder';
 
 export interface ExchangeRateRepositoryInterface {

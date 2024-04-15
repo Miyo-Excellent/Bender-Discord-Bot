@@ -84,6 +84,5 @@ export class CommandBuilder implements Command, CommandInterface {
     return savedInCache;
   };
 
-  run = async (_client: Client, _interaction: BaseInteraction): Promise<void> => {
-  };
+  run = async (_client: Client, _interaction: BaseInteraction): Promise<void> => {};
 }
