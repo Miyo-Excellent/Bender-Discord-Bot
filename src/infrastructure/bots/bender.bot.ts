@@ -9,10 +9,10 @@ import { TranslateRepository } from '@repositories/translate.repository';
 export const defaultOptions: BotConfig = { clientId: '', guildId: '', token: '' };
 
 export class BenderBot extends BotBuilder {
-  public static override openAIChatContextWrapperStart: string =
-    'The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: ';
-  public static override openAIChatContextWrapperKeywords: string[] = [' Human:', ' AI:'];
-  public static override openAIChatContextWrapperEnd: string = '.\n\nAI:';
+  // public static override openAIChatContextWrapperStart: string =
+  //   'The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: ';
+  // public static override openAIChatContextWrapperKeywords: string[] = [' Human:', ' AI:'];
+  // public static override openAIChatContextWrapperEnd: string = '.\n\nAI:';
   public translateRepository: TranslateRepository = getPackage<TranslateRepository>('translateRepository');
   override commandsPath: string = path.join(__dirname, '../commands');
   // @ts-ignore

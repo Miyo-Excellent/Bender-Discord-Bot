@@ -24,9 +24,9 @@ import { getPackage } from '@di/injector';
 import { TranslateService } from '@services/translate.service';
 
 export class BotBuilder implements Bot, BotInterface {
-  public static openAIChatContextWrapperStart: string = '';
-  public static openAIChatContextWrapperEnd: string = '';
-  public static openAIChatContextWrapperKeywords: string[] = [];
+  // public static openAIChatContextWrapperStart: string = '';
+  // public static openAIChatContextWrapperEnd: string = '';
+  // public static openAIChatContextWrapperKeywords: string[] = [];
   public translateService: TranslateService = getPackage<TranslateService>('translateService');
   public commandsPath = '';
   public commands: Command[] = [];
@@ -67,9 +67,11 @@ export class BotBuilder implements Bot, BotInterface {
         } else console.error('Unknown command', interaction);
       } else console.warn('No repliable command', interaction);
     } catch (error: any) {
+      debugger;
       await this.onError(error, interaction, options);
     }
   };
+
   sendDM = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
     if (typeof options === 'string') await interaction.user.send({ content: options });
     else if (options instanceof MessagePayload) await interaction.user.send(options);
@@ -80,6 +82,7 @@ export class BotBuilder implements Bot, BotInterface {
     if (error.code === 'InteractionNotReplied') console.warn(error?.message ?? '', interaction);
     else await this.onUnknownInteraction(interaction, options);
   };
+
   onUnknownInteraction = async (interaction: BaseInteraction, options: string | MessagePayload | InteractionReplyOptions): Promise<void> => {
     if (!(interaction instanceof ChatInputCommandInteraction)) {
       console.warn('Unknown interaction', interaction);
@@ -89,6 +92,7 @@ export class BotBuilder implements Bot, BotInterface {
     else if (options instanceof MessagePayload) await interaction.user.send(options);
     else await interaction.user.send({ content: options.content });
   };
+
   onModalSubmit = async (interaction: ModalSubmitInteraction): Promise<void> => {
     const messages: any[] = [`===============Modal Response (${interaction.customId})===============`];
 

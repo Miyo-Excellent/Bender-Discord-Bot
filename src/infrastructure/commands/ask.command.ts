@@ -1,17 +1,16 @@
 import { BaseInteraction, ChatInputCommandInteraction, Client } from 'discord.js';
 import { CommandBuilder } from '@builders/command.builder';
 import { container } from '@di/injector';
-import { BenderBot } from '@bots/bender.bot';
-import { OpenAiService } from '@services/openAi.service';
 import { TranslateService } from '@services/translate.service';
+import { GeminiAiService } from '@services/geminiAi.service';
 
 export default class AskCommand extends CommandBuilder {
   protected translateService: TranslateService;
-  protected openAiService: OpenAiService;
+  protected geminiAiService: GeminiAiService;
 
   constructor() {
     const translateService = container.resolve<TranslateService>('translateService');
-    const openAiService = container.resolve<OpenAiService>('openAiService');
+    const geminiAiService = container.resolve<GeminiAiService>('geminiAiService');
 
     const name: string = translateService.parse('ask');
     const description: string = translateService.parse('benderAskTitle');
@@ -21,7 +20,7 @@ export default class AskCommand extends CommandBuilder {
     super({ name, description });
 
     this.translateService = translateService;
-    this.openAiService = openAiService;
+    this.geminiAiService = geminiAiService;
 
     this.data.addStringOption((option) => option.setName(text).setDescription(benderAskLabel).setRequired(true).setAutocomplete(true));
   }
@@ -59,10 +58,7 @@ export default class AskCommand extends CommandBuilder {
       let output: string = benderIsHangover;
 
       try {
-        output = await this.openAiService.askQuestion({
-          value,
-          keywords: BenderBot.openAIChatContextWrapperKeywords,
-        });
+        output = await this.geminiAiService.askQuestion({ value });
       } catch (error) {
         console.error('Unknown Error: ', error);
       }

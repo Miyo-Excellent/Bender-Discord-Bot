@@ -8,6 +8,7 @@ import { OpenAiRepository } from '@repositories/openAi.repository';
 import { TranslateRepository } from '@repositories/translate.repository';
 import { TranslateService } from '@services/translate.service';
 import { GeminiAiRepository } from '@repositories/geminiAi.repository';
+import { GeminiAiService } from '@services/geminiAi.service';
 
 export const container: AwilixContainer = createContainer();
 
@@ -44,6 +45,7 @@ container.register({
   }).singleton(),
   /// SERVICES
   openAiService: asClass(OpenAiService).singleton(),
+  geminiAiService: asClass(GeminiAiService).singleton(),
   translateService: asClass(TranslateService).singleton(),
   exchangeRateService: asClass(ExchangeRateService).singleton(),
 });

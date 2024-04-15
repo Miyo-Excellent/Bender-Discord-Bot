@@ -9,13 +9,13 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import { CommandBuilder } from '@builders/command.builder';
-import { OpenAiService } from '@services/openAi.service';
 import { container } from '@di/injector';
 import { TranslateService } from '@services/translate.service';
+import { GeminiAiService } from '@services/geminiAi.service';
 
 export default class TalkCommand extends CommandBuilder {
   protected translateService: TranslateService;
-  private openAiService: OpenAiService = container.resolve<OpenAiService>('openAiService');
+  private geminiAiService: GeminiAiService = container.resolve<GeminiAiService>('geminiAiService');
 
   constructor() {
     const translateService = container.resolve<TranslateService>('translateService');
@@ -32,7 +32,7 @@ export default class TalkCommand extends CommandBuilder {
     const benderTalkWithMe: string = this.translateService.parse('benderTalkWithMe');
     const openAiContextChatWrapperStart: string = this.translateService.parse('openAiContextChatWrapperStart');
     const openAiContextChatWrapperEnd: string = this.translateService.parse('openAiContextChatWrapperEnd');
-    const openAiContextChatKeywords: string[] = this.translateService.parse('openAiContextChatKeywords');
+    // const openAiContextChatKeywords: string[] = this.translateService.parse('openAiContextChatKeywords');
     const cacheEventCaching: string = this.translateService.parse('cacheEventCaching', { lng: language });
     const benderIsThinking: string = this.translateService.parse('benderIsThinking', { lng: language });
     const benderIsHangover: string = this.translateService.parse('benderIsHangover', { lng: language });
@@ -75,9 +75,8 @@ export default class TalkCommand extends CommandBuilder {
         let reply: string = `<@${interaction.user.id}>: ${inputOne.value}\n<@${interaction.client.user.id}>: ${benderIsHangover}`;
 
         try {
-          const output: string = await this.openAiService.askQuestion({
+          const output: string = await this.geminiAiService.askQuestion({
             value,
-            keywords: openAiContextChatKeywords,
           });
 
           reply = `<@${interaction.user.id}>: ${inputOne.value}\n<@${interaction.client.user.id}>: ${output}`;
