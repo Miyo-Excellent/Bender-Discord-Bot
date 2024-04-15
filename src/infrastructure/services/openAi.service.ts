@@ -1,19 +1,24 @@
 import { OpenAiServiceInterface } from '@interfaces/openAi.service.interface';
 import { OpenAiServiceAskQuestionOptionInterface } from '@interfaces/openAiServiceAskQuestionOption.interface';
-import { CreateCompletionResponseChoicesInner } from 'openai';
-import { OpenAiRepository } from '@repositories/openAi.repository';
 import { getPackage } from '@di/injector';
+import { GeminiAiRepository } from '@repositories/geminiAi.repository';
+import { GenerateContentResult } from '@google/generative-ai';
 
 export class OpenAiService implements OpenAiServiceInterface {
-  private repository: OpenAiRepository = getPackage<OpenAiRepository>('openAiRepository');
+  // private repository: OpenAiRepository = getPackage<OpenAiRepository>('openAiRepository');
+  private repository: GeminiAiRepository = getPackage<GeminiAiRepository>('geminiAiRepository');
 
   public askQuestion = async (options: OpenAiServiceAskQuestionOptionInterface = { value: '' }): Promise<string> => {
-    const choices: CreateCompletionResponseChoicesInner[] = await this.repository.autocompletionText(options.value, options.keywords);
+    const contentResult: GenerateContentResult = await this.repository.generateContent(options.value);
 
-    let output: string = '';
+    if (Array.isArray(contentResult?.response?.candidates) && !!contentResult?.response?.candidates.length) {
+      if (Array.isArray(contentResult?.response?.candidates[0]?.content?.parts) && !!contentResult?.response?.candidates[0]?.content?.parts.length) {
+        return contentResult?.response?.candidates[0]?.content?.parts.join('\n');
+      }
 
-    for (const choice of choices) output += `\n${(choice.text ?? '').trim()}`;
+      return '';
+    }
 
-    return output.trim();
+    return '';
   };
 }

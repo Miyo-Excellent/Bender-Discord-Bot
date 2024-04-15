@@ -7,6 +7,7 @@ import { ExchangeRateRepository } from '@repositories/exchangeRate.repository';
 import { OpenAiRepository } from '@repositories/openAi.repository';
 import { TranslateRepository } from "@repositories/translate.repository";
 import { TranslateService } from "@services/translate.service";
+import { GeminiAiRepository } from '@repositories/geminiAi.repository';
 
 export const container: AwilixContainer = createContainer();
 
@@ -25,6 +26,10 @@ container.register({
   openAiRepository: asFunction((_context) => {
     const environment: Environment = getPackage<Environment>('environment');
     return new OpenAiRepository(environment.openAiApiKey);
+  }).singleton(),
+  geminiAiRepository: asFunction((_context) => {
+    const environment: Environment = getPackage<Environment>('environment');
+    return new GeminiAiRepository(environment.geminiAiApiKey);
   }).singleton(),
   exchangeRateRepository: asFunction((_context) => {
     const environment: Environment = getPackage<Environment>('environment');

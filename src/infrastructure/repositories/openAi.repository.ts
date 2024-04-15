@@ -4,11 +4,11 @@ import {
   CreateCompletionRequest,
   CreateCompletionResponse,
   CreateCompletionResponseChoicesInner,
-  OpenAIApi
+  OpenAIApi,
 } from 'openai';
-import { OpenAiRepositoryInterface } from "@interfaces/openAi.repository.interface";
+import { OpenAiRepositoryInterface } from '@interfaces/openAi.repository.interface';
 
-export class OpenAiRepository implements OpenAiRepositoryInterface{
+export class OpenAiRepository implements OpenAiRepositoryInterface {
   public configuration: Configuration;
   public client: OpenAIApi;
 

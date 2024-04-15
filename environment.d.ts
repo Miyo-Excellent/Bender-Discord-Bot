@@ -9,6 +9,7 @@ declare global {
       readonly DISCORD_CLIENT_VERSION: string;
       readonly DISCORD_COMMAND_PREFIX: string;
       readonly OPEN_AI_API_KEY: string;
+      readonly GEMINI_AI_API_KEY: string;
       readonly EXCHANGE_RATE_BASE_URL: string;
       readonly API_LAYER_EXCHANGE_RATE_API_KEY: string;
     }
